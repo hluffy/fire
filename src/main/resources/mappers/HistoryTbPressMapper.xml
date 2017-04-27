@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//ibatis.apache.org//DTD Mapper 3.0//EN"      
+ "http://ibatis.apache.org/dtd/ibatis-3-mapper.dtd">
+
+<mapper namespace="cn.com.welleplus.fire.dao.HistoryTbPressDao">
+
+	<select id="find" resultType="cn.com.welleplus.fire.entity.HistoryTbPress"
+		parameterType="map">
+		select
+		temprownumber,station,PressCurrent,Press,Battvoltage,status,tm
+		from (
+		select row_number()over(order by
+		tempcolumn)
+		temprownumber,tempcolumn,station,PressCurrent,Press,Battvoltage,status,tm
+		from (select top ${end}
+		tempcolumn=0,station,PressCurrent,Press,Battvoltage,status,tm
+		from
+		dbo.history_tbPress order by tm
+		desc)t
+		)tt where
+		tt.temprownumber>#{start}
+	</select>
+
+	<select id="findCount" resultType="int">
+		select count(*) from
+		dbo.history_tbPress
+	</select>
+
+	<select id="findStationCount" resultType="int">
+		select count(DISTINCT
+		station) from dbo.history_tbPress
+	</select>
+
+	<select id="findByStation" resultType="cn.com.welleplus.fire.entity.HistoryTbPress"
+		parameterType="map">
+		select
+		temprownumber,station,PressCurrent,Press,Battvoltage,status,tm from (
+		select row_number()over(order by
+		tempcolumn)
+		temprownumber,tempcolumn,station,PressCurrent,Press,Battvoltage,status,tm
+		from (select top ${end}
+		tempcolumn=0,station,PressCurrent,Press,Battvoltage,status,tm
+		from
+		dbo.history_tbPress where station=#{station} order by tm
+		desc)t
+		)tt
+		where tt.temprownumber>#{start}
+	</select>
+
+	<select id="findCountByStation" resultType="int">
+		select count(*) from
+		dbo.history_tbPress where station=#{station}
+	</select>
+
+	<select id="findAll" parameterType="map"
+		resultType="cn.com.welleplus.fire.entity.HistoryTbPress">
+		select station,PressCurrent,Press,Battvoltage,status,tm from
+		dbo.history_tbPress
+		<where>
+			<if test="startTime!=null">tm&gt;#{startTime} </if>
+			<if test="endTime!=null"> and tm&lt;#{endTime} </if>
+		</where>
+		order by tm desc
+	</select>
+
+	<select id="findAllByStation" parameterType="map"
+		resultType="cn.com.welleplus.fire.entity.HistoryTbPress">
+		select station,PressCurrent,Press,Battvoltage,status,tm from
+		dbo.history_tbPress where station=#{station}
+		<if test="startTime!=null">and tm&gt;#{startTime} </if>
+		<if test="endTime!=null"> and tm&lt;#{endTime} </if>
+		order by tm desc
+	</select>
+
+</mapper>
